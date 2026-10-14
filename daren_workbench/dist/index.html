@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Q3-代理激励版精选达人匹配工作台</title>
+<link rel="stylesheet" href="tailwind-static.css"/>
+<style>
+  :root{--brand:#00c853;--brand-6:#1abc57;--brand-7:#118b3d;--brand-1:#e8fbef;--brand-2:#cdf5db;
+    --ink-1:#0b1220;--ink-2:#232938;--ink-3:#4a5568;--ink-4:#8791a1;--line:#e6e9ee;--line-2:#f0f2f5;--bg:#f6f8fb;--card:#fff;}
+  html,body{background:var(--bg);color:var(--ink-2);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Segoe UI","Microsoft YaHei",sans-serif;}
+  .brand-grad{background:linear-gradient(135deg,#00c853 0%,#00b0ff 100%);}
+  .brand-text{background:linear-gradient(135deg,#00a844 0%,#008ac6 100%);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .glass{background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.6);}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;}
+  .card-hover{transition:all .2s ease;box-shadow:0 1px 2px rgba(15,23,42,.04);}
+  .card-hover:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(15,23,42,.08);border-color:#c8ecd4;}
+  .chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;font-size:12px;border-radius:6px;background:#f2f4f7;color:#4a5568;border:1px solid transparent;}
+  .chip.on{background:var(--brand-1);color:var(--brand-7);border-color:var(--brand-2);}
+  .chip.selectable{cursor:pointer;transition:all .12s ease;}
+  .chip.selectable:hover{background:#e6f9ec;color:var(--brand-7);}
+  .btn-primary{background:var(--brand);color:#fff;padding:9px 18px;border-radius:8px;font-weight:600;transition:all .15s;}
+  .btn-primary:hover{background:var(--brand-6);box-shadow:0 6px 18px rgba(0,200,83,.28);}
+  .btn-ghost{color:var(--ink-3);padding:9px 14px;border-radius:8px;border:1px solid var(--line);background:#fff;}
+  .btn-ghost:hover{border-color:var(--brand);color:var(--brand-7);}
+  .filter-title{font-size:12.5px;font-weight:600;color:var(--ink-2);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .filter-title .dot{width:3px;height:12px;background:var(--brand);border-radius:2px;}
+  .bar{height:6px;background:#f0f2f5;border-radius:3px;overflow:hidden;position:relative;}
+  .bar>span{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#00c853,#4dd97e);border-radius:3px;}
+  .divider{height:1px;background:var(--line);margin:12px 0;}
+  .badge{font-size:11px;padding:2px 7px;border-radius:4px;background:var(--brand-1);color:var(--brand-7);font-weight:500;}
+  .badge-gray{background:#f2f4f7;color:var(--ink-3);}
+  .badge-blue{background:#e6f4ff;color:#0f78c4;}
+  .badge-orange{background:#fff2e6;color:#c46613;}
+  .badge-vertical{background:linear-gradient(135deg,#fff5cc,#ffe58a);color:#8a5a00;font-weight:600;}
+  .tag-persona{background:#eef7ff;color:#0e6bb8;}
+  .tag-dim{background:#f4eeff;color:#7b3ff2;}
+  .tag-identity{background:#fef3e0;color:#c07a0c;}
+  .k-num{font-variant-numeric:tabular-nums;letter-spacing:-.02em;}
+  .fade-in{animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .ck{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:6px 10px;border-radius:6px;transition:background .12s;}
+  .ck:hover{background:#f6f7fa;}
+  select,input[type="text"]{border:1px solid var(--line);border-radius:6px;padding:7px 10px;font-size:13px;background:#fff;width:100%;transition:border-color .12s;}
+  select:focus,input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(0,200,83,.12);}
+  .scroll-y{scrollbar-width:thin;scrollbar-color:#cfd6e0 transparent;}
+  .scroll-y::-webkit-scrollbar{width:6px;}.scroll-y::-webkit-scrollbar-thumb{background:#cfd6e0;border-radius:3px;}
+  .modal-mask{position:fixed;inset:0;background:rgba(11,18,32,.55);backdrop-filter:blur(6px);z-index:50;display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal-mask.open{display:flex;}
+  .modal-body{background:#fff;border-radius:16px;max-width:900px;width:100%;max-height:88vh;overflow-y:auto;}
+  .hero-orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;pointer-events:none;}
+  .loader{width:14px;height:14px;border:2px solid #d3e0d6;border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite;display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @media (max-width:900px){.layout-2col{grid-template-columns:1fr!important;}.filter-panel{position:relative!important;top:auto!important;max-height:none!important;}}
+</style>
+</head>
+<body>
+<header class="sticky top-0 z-30 glass border-b border-[var(--line)]">
+  <div class="max-w-[1360px] mx-auto flex items-center justify-between px-6 py-3">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full overflow-hidden shadow-md ring-1 ring-[rgba(129,140,248,0.24)] flex-shrink-0 bg-gradient-to-br from-[#2a1f59] via-[#1b2f66] to-[#0f4b6e]">
+        <img src="avatar-xunxing-clean.png" alt="寻星" class="w-full h-full object-cover object-center block" />
+      </div>
+      <div>
+        <div class="font-bold text-[15px] leading-tight text-[var(--ink-1)]">Q3-代理激励版精选达人匹配工作台</div>
+        <div class="text-[11px] text-[var(--ink-4)]">Xingtu Creator Matching · Q3代理激励版 · 全量 <span id="pool-total-k">15k</span> 达人池</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-3 text-[12px] text-[var(--ink-3)]">
+      <span id="load-status" class="inline-flex items-center gap-1"><span class="loader"></span><span id="load-status-text">加载达人数据 <span id="load-status-pct">0%</span></span></span>
+      <button onclick="document.getElementById('guide').scrollIntoView({behavior:'smooth'})" class="btn-ghost text-[12px] py-1.5 px-3">使用说明</button>
+    </div>
+  </div>
+</header>
+
+<section class="relative overflow-hidden">
+  <div class="hero-orb" style="width:520px;height:520px;background:#c8f7d9;top:-160px;right:-140px;"></div>
+  <div class="hero-orb" style="width:420px;height:420px;background:#cfe9ff;bottom:-180px;left:-120px;"></div>
+  <div class="max-w-[1360px] mx-auto px-6 pt-10 pb-8 relative">
+    <div class="inline-flex items-center gap-2 text-[12px] text-[var(--brand-7)] bg-[var(--brand-1)] px-3 py-1 rounded-full mb-4 border border-[var(--brand-2)]">
+      <span class="w-1.5 h-1.5 rounded-full bg-[var(--brand)]"></span>全量 <b id="pool-total">14,927</b> 位精选达人 · 12 大行业垂类打标 · 支持客户品类一键匹配
+    </div>
+    <h1 class="text-3xl md:text-4xl font-bold leading-tight text-[var(--ink-1)]">让品牌方 <span class="brand-text">3 分钟</span> 找到最匹配的抖音达人</h1>
+    <p class="mt-3 text-[14px] text-[var(--ink-3)] max-w-[720px] leading-relaxed">输入客户名称与产品品类，或按行业、粉丝画像、目标人群与预算精细化筛选。工作台将结合达人内容质量、行业热点趋势与粉丝匹配度，输出精准达人名单、使用策略、匹配理由与选题建议，一键导出可直接发给客户。</p>
+  </div>
+</section>
+
+<main class="max-w-[1360px] mx-auto px-6 pb-16">
+  <div class="grid layout-2col gap-6" style="grid-template-columns:320px 1fr;">
+    <aside class="filter-panel card p-5 sticky top-[74px] max-h-[calc(100vh-90px)] overflow-y-auto scroll-y" style="align-self:start;">
+      <div class="flex items-center justify-between mb-4">
+        <div class="font-semibold text-[15px] text-[var(--ink-1)]">匹配条件</div>
+        <button onclick="resetFilters()" class="text-[12px] text-[var(--ink-4)] hover:text-[var(--brand-7)]">重置</button>
+      </div>
+
+      <div class="mb-4 p-3 rounded-lg border border-[var(--brand-2)]" style="background:linear-gradient(135deg,#f2fbf5 0%,#e8f5ff 100%);">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-4 h-4 rounded brand-grad flex items-center justify-center text-white text-[10px]">✨</div>
+          <div class="text-[12.5px] font-semibold text-[var(--ink-1)]">策略生成输入</div>
+        </div>
+        <input id="f-client" type="text" placeholder="品牌名称（必填，如：珀莱雅/华为）" class="mb-2 text-[12px]"/>
+        <input id="f-category" type="text" list="category-suggestions" placeholder="行业/产品类目（必填，如：美妆/面霜）" class="mb-2 text-[12px]"/>
+        <datalist id="category-suggestions"></datalist>
+        <input id="f-audience-desc" type="text" placeholder="目标人群描述（可选，如：熬夜白领）" class="mb-2 text-[12px]"/>
+        <select id="f-objective" class="mb-2 text-[12px]">
+          <option value="">投放目标（可选）</option>
+          <option value="种草">种草</option>
+          <option value="拔草">拔草</option>
+          <option value="品宣">品宣</option>
+          <option value="转化">转化</option>
+          <option value="拉新">拉新</option>
+        </select>
+        <button onclick="smartMatch()" class="btn-primary w-full text-[12.5px] py-1.5">✨ 生成策略</button>
+        <div id="smart-hint" class="text-[11px] text-[var(--ink-4)] mt-1.5 leading-snug">填写品牌和行业/产品后生成右侧策略、达人匹配与行业爆文参考。</div>
+      </div>
+
+      <div class="mb-4">
+        <div class="filter-title"><span class="dot"></span>行业垂类<span class="text-[10px] text-[var(--ink-4)] font-normal ml-1">可选，不选则不过滤行业</span></div>
+        <select id="f-industry" onchange="handleIndustryChange()"></select>
+        <label class="ck mt-1"><input id="f-only-vertical" type="checkbox"><span class="text-[12px] text-[var(--ink-3)]">仅展示行业垂类达人</span></label>
+      </div>
+
+      <div class="mb-4"><div class="filter-title"><span class="dot"></span>达人身份</div><div id="f-identity" class="flex flex-wrap gap-1.5"></div></div>
+      <div class="mb-4"><div class="filter-title"><span class="dot"></span>粉丝量级</div><div id="f-tier" class="flex flex-wrap gap-1.5"></div></div>
+      <div class="mb-4"><div class="filter-title"><span class="dot"></span>达人粉丝画像</div><div id="f-persona" class="flex flex-wrap gap-1.5"></div></div>
+      <div class="mb-4"><div class="filter-title"><span class="dot"></span>达人适配行业</div><div id="f-dim" class="flex flex-wrap gap-1.5"></div></div>
+
+      <div class="divider"></div>
+
+      <div class="mb-4"><div class="filter-title"><span class="dot"></span>目标人群（八大人群）</div><div id="f-crowd" class="flex flex-wrap gap-1.5"></div></div>
+      <div class="mb-4"><div class="filter-title"><span class="dot"></span>粉丝年龄</div><div id="f-age" class="flex flex-wrap gap-1.5"></div></div>
+      <div class="mb-4"><div class="filter-title"><span class="dot"></span>目标省份 / 地域</div>
+        <input id="f-city" type="text" placeholder="如 北京、上海、成都（可多个）"/>
+        <div class="text-[11px] text-[var(--ink-4)] mt-1">用逗号或空格分隔；将按表格中的省份粉丝占比加权</div></div>
+      <div class="mb-4"><div class="filter-title"><span class="dot"></span>性别偏好</div>
+        <div class="flex gap-1.5">
+          <label class="chip selectable on" data-gender="all"><input type="radio" name="gender" value="all" checked class="hidden">不限</label>
+          <label class="chip selectable" data-gender="female"><input type="radio" name="gender" value="female" class="hidden">女粉为主</label>
+          <label class="chip selectable" data-gender="male"><input type="radio" name="gender" value="male" class="hidden">男粉为主</label>
+        </div></div>
+      <div class="mb-4"><div class="filter-title"><span class="dot"></span>目标推广时间</div>
+        <div class="flex items-center gap-1">
+          <input id="f-date-start" type="date" class="text-[12px]"/>
+          <span class="text-[var(--ink-4)] text-[12px]">~</span>
+          <input id="f-date-end" type="date" class="text-[12px]"/>
+        </div>
+        <div class="text-[11px] text-[var(--ink-4)] mt-1">用于生成该时段的行业节点与选题策略</div>
+      </div>
+
+      <div class="mb-4"><div class="filter-title"><span class="dot"></span>达人定制视频报价</div>
+        <div class="flex items-center gap-2">
+          <input id="f-custom-price-min" type="text" placeholder="最低" class="text-[12px]"/>
+          <span class="text-[var(--ink-4)] text-[12px]">-</span>
+          <input id="f-custom-price-max" type="text" placeholder="最高" class="text-[12px]"/>
+        </div>
+        <div class="text-[11px] text-[var(--ink-4)] mt-1">单位：元；留空表示不限</div></div>
+
+      <div class="mb-4"><div class="filter-title"><span class="dot"></span>达人植入视频报价</div>
+        <div class="flex items-center gap-2">
+          <input id="f-implant-price-min" type="text" placeholder="最低" class="text-[12px]"/>
+          <span class="text-[var(--ink-4)] text-[12px]">-</span>
+          <input id="f-implant-price-max" type="text" placeholder="最高" class="text-[12px]"/>
+        </div>
+        <div class="text-[11px] text-[var(--ink-4)] mt-1">单位：元；留空表示不限</div></div>
+
+      <button onclick="runMatch()" class="btn-primary w-full text-[13px]">🚀 立即匹配</button>
+    </aside>
+
+    <section>
+      <section id="strategy" class="mb-6">
+        <div class="flex items-center gap-3 mb-4"><div class="w-1 h-6 bg-[var(--brand)] rounded"></div><div class="font-bold text-[18px] text-[var(--ink-1)]">达人使用策略与选题建议</div><div class="text-[12px] text-[var(--ink-4)]">基于所选行业热点趋势 + 已匹配达人特征生成</div></div>
+        <div id="strategy-panel"></div>
+      </section>
+      <div id="promo-insights" class="hidden mb-5"></div>
+      <div id="insights-panel" class="mb-5"></div>
+      <div id="client-banner" class="hidden mb-4 p-4 rounded-xl border border-[var(--brand-2)]" style="background:linear-gradient(135deg,#f2fbf5 0%,#e8f5ff 100%);"></div>
+
+      <div class="card p-4 mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-4 text-[13px]">
+          <div>共匹配 <span id="match-count" class="font-bold text-[var(--brand-7)] text-[16px] k-num">0</span> 位达人 <span id="vertical-count" class="text-[11px] text-[var(--ink-4)]"></span></div>
+          <div class="hidden md:block h-4 w-px bg-[var(--line)]"></div>
+          <div class="text-[12px] text-[var(--ink-3)]">平均匹配度 <span id="avg-score" class="font-semibold text-[var(--ink-1)] k-num">-</span></div>
+          <div class="hidden md:block h-4 w-px bg-[var(--line)]"></div>
+          <div class="text-[12px] text-[var(--ink-3)]">中位定制报价 <span id="median-price" class="font-semibold text-[var(--ink-1)] k-num">-</span></div>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <label class="text-[12px] text-[var(--ink-3)]">排序：</label>
+          <select id="sort-by" onchange="renderResults()" style="width:auto;min-width:130px;">
+            <option value="score">匹配度</option><option value="tier">粉丝量级</option><option value="price_asc">定制报价 低→高</option><option value="price_desc">定制报价 高→低</option>
+          </select>
+          <button onclick="exportCSV(0)" class="btn-ghost text-[12px] py-1.5 px-3 flex items-center gap-1" title="导出全部匹配结果为 CSV">📥 导出 CSV</button>
+          <button onclick="exportCSV(30)" class="btn-primary text-[12px] py-1.5 px-3" title="导出 Top 30 达人报告">📄 导出报告 (Top 30)</button>
+        </div>
+      </div>
+
+      <div id="results" class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(340px,1fr));"></div>
+      <div id="empty" class="hidden card p-10 text-center text-[var(--ink-4)] text-[13px]">暂无匹配的达人，请尝试放宽筛选条件。</div>
+      <div id="boot-loading" class="card p-8">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="loader"></span>
+          <div>
+            <div class="font-semibold text-[14px] text-[var(--ink-1)]" id="boot-loading-title">正在加载全量 <span id="boot-total-k">15k</span> 达人数据…</div>
+            <div class="text-[12px] text-[var(--ink-4)] mt-0.5" id="boot-loading-sub">首次加载约需 5-30 秒（数据包约 3.5 MB, 已启用 gzip），请稍候。</div>
+          </div>
+        </div>
+        <div class="bar" style="height:8px;"><span id="boot-progress" style="width:2%"></span></div>
+        <div class="mt-2 text-[12px] text-[var(--ink-4)] flex items-center justify-between"><span id="boot-progress-text">已下载 0%</span><span id="boot-progress-detail" class="k-num">0 KB</span></div>
+      </div>
+      <div id="boot-error" class="hidden card p-6" style="border-color:#f4c7c7;background:#fff7f7;">
+        <div class="flex items-start gap-3">
+          <div class="text-[22px]">⚠️</div>
+          <div class="flex-1">
+            <div class="font-semibold text-[14px] text-[#a4302b]">达人数据加载失败</div>
+            <div class="text-[12.5px] text-[var(--ink-3)] mt-1" id="boot-error-msg">网络异常，请检查网络后重试。</div>
+            <button id="boot-retry" class="btn-primary mt-3 text-[12.5px] py-1.5 px-4">🔄 重新加载</button>
+          </div>
+        </div>
+      </div>
+      <div id="pagination-wrap" class="hidden mt-6 flex flex-col items-center gap-2">
+        <div id="pagination" class="flex flex-wrap items-center justify-center gap-1.5"></div>
+        <div id="pagination-meta" class="text-[12px] text-[var(--ink-4)]"></div>
+      </div>
+    </section>
+  </div>
+
+  <section id="guide" class="mt-10 card p-6">
+    <div class="flex items-center gap-3 mb-4"><div class="w-1 h-6 bg-[var(--brand)] rounded"></div><div class="font-bold text-[16px] text-[var(--ink-1)]">使用说明 & 数据口径</div></div>
+    <div class="grid md:grid-cols-2 gap-6 text-[13px] leading-relaxed text-[var(--ink-3)]">
+      <div>
+        <div class="font-semibold text-[var(--ink-1)] mb-2">🎯 三种使用方式</div>
+        <ol class="list-decimal ml-5 space-y-1">
+          <li><b>品牌策略生成</b>：填写品牌名称、行业/产品、目标人群和投放目标，系统同步生成达人匹配、脚本策略与行业爆文参考；</li>
+          <li><b>精细化筛选</b>：手动组合行业/粉丝量级/达人粉丝画像/达人适配行业/目标人群/年龄/省份/性别/定制报价/植入报价；</li>
+          <li><b>行业垂类</b>：勾选「仅展示行业垂类达人」只看依据「达人一级行业名称列表」命中所选行业的达人；未勾选则全量参与匹配、垂类达人优先展示。</li>
+        </ol>
+        <div class="font-semibold text-[var(--ink-1)] mt-3 mb-2">📤 导出</div>
+        <ul class="list-disc ml-5 space-y-1">
+          <li>「导出 CSV」：当前匹配结果全部导出（含匹配度、报价、粉丝画像）；</li>
+          <li>「导出报告」：Top 30 达人 + 客户名/品类/行业趋势/使用策略/选题建议合并生成，客户可直接使用。</li>
+        </ul>
+      </div>
+      <div>
+        <div class="font-semibold text-[var(--ink-1)] mb-2">📖 数据说明</div>
+        <ul class="list-disc ml-5 space-y-1">
+          <li>数据源：飞书「全量名单」新底表，共 <span id="guide-total">14,927</span> 位达人；</li>
+          <li>达人粉丝画像：直接读取「万粉一级标签v2」真实枚举；达人适配行业：直接读取「达人一级行业名称列表」。</li>
+          <li>达人定制视频报价、达人植入视频报价及其他达人字段均直接读取「全量名单」对应列。</li>
+          <li>行业爆文参考：按输入行业展示预置的真实抖音案例，包含量爆/质爆/双爆类型与核心亮点，不做实时抓取。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-4 text-[11.5px] text-[var(--ink-4)] border-t border-[var(--line)] pt-3">* 达人信息取自飞书「全量名单」Sheet；筛选、匹配度与策略内容为基于这些字段的工作台计算结果。</div>
+  </section>
+</main>
+
+<div class="modal-mask" id="detail-modal" onclick="closeModal(event)">
+  <div class="modal-body p-0" onclick="event.stopPropagation()"><div id="modal-content" class="p-6"></div></div>
+</div>
+
+<footer class="text-center text-[11.5px] text-[var(--ink-4)] py-6 border-t border-[var(--line)] bg-white">
+  © 2026 抖音星图 · 品牌星图团队出品｜数据仅供参考，实际以星图平台为准
+</footer>
+
+<script src="bao-wen-cases.js"></script>
+<script src="strategy-profiles.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
